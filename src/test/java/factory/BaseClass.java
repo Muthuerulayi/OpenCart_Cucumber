@@ -24,9 +24,10 @@ public class BaseClass {
 	  	     
 	public static WebDriver initilizeBrowser() throws IOException
 	{
+		String gridURL = getProperties().getProperty("gridURL");
 		if(getProperties().getProperty("execution_env").equalsIgnoreCase("remote"))
 		{
-			DesiredCapabilities capabilities = new DesiredCapabilities();
+			/*DesiredCapabilities capabilities = new DesiredCapabilities();
 			
 			//os
 			if (getProperties().getProperty("os").equalsIgnoreCase("windows")) {
@@ -48,7 +49,31 @@ public class BaseClass {
 			        System.out.println("No matching browser");
 			     }
 	       
-	        driver = new RemoteWebDriver(new URL("http://localhost:4444/wd/hub"),capabilities);
+	        driver = new RemoteWebDriver(new URL("http://localhost:4444/wd/hub"),capabilities);*/
+
+			try {
+		        if (getProperties().getProperty("browser").equalsIgnoreCase("chrome")) {
+		            ChromeOptions options = new ChromeOptions();
+		            options.addArguments("--headless", "--disable-gpu", "--window-size=1920,1080");
+		            driver = new RemoteWebDriver(new URL(gridURL), options);
+		        } else if (getProperties().getProperty("browser").equalsIgnoreCase("firefox")) {
+		            FirefoxOptions options = new FirefoxOptions();
+		            //options.addArguments("-headless");
+		            options.addArguments("--window-size=1920,1080");
+		            driver = new RemoteWebDriver(new URL(gridURL), options);
+		        } else if (getProperties().getProperty("browser").equalsIgnoreCase("edge")) {
+		            EdgeOptions options = new EdgeOptions();
+		            options.addArguments("--headless=new", "--disable-gpu","--no-sandbox","--disable-dev-shm-usage");
+		            driver = new RemoteWebDriver(new URL(gridURL), options);
+		        } else {
+		            //throw new IllegalArgumentException("Browser Not Supported: " + getProperties().getProperty("browser"));
+		        	throw new IllegalArgumentException("Browser Not Supported");
+		        }
+		        //logger.info("RemoteWebDriver instance created for Grid in headless mode");
+		    } catch (MalformedURLException e) {
+		        throw new RuntimeException("Invalid Grid URL", e);
+		    }
+			
 			
 		}
 		else if(getProperties().getProperty("execution_env").equalsIgnoreCase("local"))
